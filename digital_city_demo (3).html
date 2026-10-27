@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>A Day in the Digital City — Live Prototype</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --cream: #EDEDE3;
+    --dark: #1F4034;
+    --dark2: #163026;
+    --accent: #5B9279;
+    --light-accent: #9FD8A0;
+    --card: #FFFFFF;
+    --muted: #5B6B62;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--cream);
+    font-family: 'Inter', sans-serif;
+    color: var(--dark);
+  }
+
+  .wrap {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 30px;
+    margin: 0 0 8px 0;
+    text-align: center;
+  }
+
+  .sub {
+    color: var(--muted);
+    font-size: 14.5px;
+    margin-bottom: 30px;
+    text-align: center;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+
+  /* ===== VIEW SWITCHING ===== */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== CITY VIEW ===== */
+  .city-scene {
+    background: linear-gradient(180deg, #DCE3D8 0%, var(--cream) 70%);
+    border-radius: 18px;
+    padding: 30px 20px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ground {
+    height: 4px;
+    background: var(--accent);
+    margin-top: 18px;
+  }
+
+  .buildings {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 18px;
+    padding-bottom: 0;
+  }
+
+  .building {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    flex: 1;
+    max-width: 130px;
+  }
+  .building:hover:not(.locked) { transform: translateY(-4px); }
+
+  .building-icon {
+    width: 100%;
+    height: 110px;
+    background: var(--dark);
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  .building.locked .building-icon {
+    background: #8FA298;
+    opacity: 0.55;
+  }
+  .building-icon .windows {
+    position: absolute;
+    inset: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+  .building-icon .windows div {
+    background: var(--light-accent);
+    border-radius: 2px;
+    opacity: 0.85;
+  }
+  .building.locked .building-icon .windows div { background: #c4cdc7; opacity: 0.5; }
+
+  .building-label {
+    background: var(--card);
+    padding: 8px 6px;
+    border-radius: 0 0 8px 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .building-sub {
+    font-size: 10px;
+    color: var(--muted);
+    padding: 0 4px 8px;
+    background: var(--card);
+    border-radius: 0 0 8px 8px;
+    margin-top: -8px;
+  }
+  .badge {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .badge.soon { color: #9aa8a0; }
+
+  .city-footnote {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    padding: 22px 0;
+  }
+
+  /* ===== STORY VIEW ===== */
+  .back-link {
+    font-size: 13px;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+
+  .character-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 22px;
+    border-left: 4px solid var(--accent);
+  }
+  .character-card h2 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 19px;
+    margin: 0 0 8px 0;
+  }
+  .character-card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #33473F;
+    margin: 0;
+  }
+
+  .decisions {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .decision {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .decision label.dlabel {
+    display: block;
+    font-weight: 700;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+  }
+  .options { display: flex; gap: 10px; }
+  .opt {
+    flex: 1;
+    border: 1.5px solid #D7DED4;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    background: #FAFAF6;
+    color: #33473F;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+  }
+  .opt:hover { border-color: var(--accent); }
+  .opt.selected { background: var(--dark); color: #fff; border-color: var(--dark); }
+
+  button#generateBtn {
+    width: 100%;
+    padding: 15px;
+    background: var(--dark);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  button#generateBtn:hover { background: var(--dark2); }
+  button#generateBtn:disabled { background: #9aa8a0; cursor: not-allowed; }
+
+  .output {
+    margin-top: 22px;
+    background: var(--card);
+    border-radius: 14px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .output.show { max-height: 500px; padding: 22px 24px; }
+  .output .tag {
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .output p { font-size: 15px; line-height: 1.7; color: var(--dark2); margin: 0; }
+
+  .loading { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13.5px; }
+  .loading .dots span {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--light-accent); margin-right: 4px; animation: pulse 1.2s infinite ease-in-out;
+  }
+  .loading .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+
+  .return-city {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">A Day in the Digital City — Working Prototype</div>
+  <h1 id="mainTitle">Welcome to the City</h1>
+  <div class="sub" id="mainSub">Choose a building. Step into someone else's digital workday. Three decisions — then the city reflects them back to you.</div>
+
+  <!-- ===================== CITY VIEW ===================== -->
+  <div class="view active" id="cityView">
+    <div class="city-scene">
+      <div class="buildings">
+        <div class="building" data-character="maria">
+          <div class="building-icon">🏫<div class="windows"><div></div><div></div><div></div><div></div></div></div>
+          <div class="building-label">School</div>
+          <div class="building-sub">Maria, Teacher<br><span class="badge">▶ Play this story</span></div>
+        </div>
+        <div class="building locked">
+          <div class="building-icon">🏥<div class="windows"><div></div><div></div><div></div><div></div></div></div>
+          <div class="building-label">Hospital</div>
+          <div class="building-sub">Olena, Nurse<br><span class="badge soon">Coming soon</span></div>
+        </div>
+        <div class="building locked">
+          <div class="building-icon">🏢<div class="windows"><div></div><div></div><div></div><div></div></div></div>
+          <div class="building-label">Office</div>
+          <div class="building-sub">Taras, PM<br><span class="badge soon">Coming soon</span></div>
+        </div>
+        <div class="building locked">
+          <div class="building-icon">🏭<div class="windows"><div></div><div></div><div></div><div></div></div></div>
+          <div class="building-label">Factory</div>
+          <div class="building-sub">Bohdan, Warehouse<br><span class="badge soon">Coming soon</span></div>
+        </div>
+        <div class="building locked">
+          <div class="building-icon">🏠<div class="windows"><div></div><div></div><div></div><div></div></div></div>
+          <div class="building-label">Apartment</div>
+          <div class="building-sub">Kateryna, Designer<br><span class="badge soon">Coming soon</span></div>
+        </div>
+      </div>
+      <div class="ground"></div>
+      <div class="city-footnote">One building is fully playable in this prototype. The other four are designed and ready to build next.</div>
+    </div>
+  </div>
+
+  <!-- ===================== MARIA STORY VIEW ===================== -->
+  <div class="view" id="mariaView">
+    <span class="back-link" onclick="showCity()">← Back to the city</span>
+
+    <div class="character-card">
+      <h2>🏫 Maria — History Teacher</h2>
+      <p>Maria's school introduced a mandatory AI grading assistant. Today it gave a passing student's deeply personal essay a failing grade and flagged it as "possibly AI-generated." She knows the essay is real. The student needs this grade for his scholarship.</p>
+    </div>
+
+    <div class="decisions">
+      <div class="decision" data-decision="1">
+        <label class="dlabel">Decision 1 — The grade</label>
+        <div class="options">
+          <div class="opt" data-value="Overrode the AI and gave the student a passing grade, despite having to justify it in writing">Override the AI and give a passing grade</div>
+          <div class="opt" data-value="Submitted the AI's failing grade as given">Submit the AI's grade as given</div>
+        </div>
+      </div>
+
+      <div class="decision" data-decision="2">
+        <label class="dlabel">Decision 2 — The student asks what happened</label>
+        <div class="options">
+          <div class="opt" data-value="Told the student honestly that the AI flagged his essay">Tell him honestly the AI flagged it</div>
+          <div class="opt" data-value="Told the student she would appeal the grade internally, buying time">Say she'll appeal it internally</div>
+        </div>
+      </div>
+
+      <div class="decision" data-decision="3">
+        <label class="dlabel">Decision 3 — The director questions her override</label>
+        <div class="options">
+          <div class="opt" data-value="Defended her decision in writing, setting a precedent for other teachers">Defend the decision in writing</div>
+          <div class="opt" data-value="Backed down and let the AI's grade stand">Back down and let the AI's grade stand</div>
+        </div>
+      </div>
+    </div>
+
+    <button id="generateBtn" disabled>Select all three decisions to continue</button>
+
+    <div class="output" id="output">
+      <div class="tag">City Reflection Engine</div>
+      <p id="outputText"></p>
+    </div>
+
+    <span class="return-city" id="returnCity" style="display:none;" onclick="showCity()">↩ Return to the city</span>
+  </div>
+
+</div>
+
+<script>
+  const cityView = document.getElementById('cityView');
+  const mariaView = document.getElementById('mariaView');
+  const mainTitle = document.getElementById('mainTitle');
+  const mainSub = document.getElementById('mainSub');
+
+  function showCity() {
+    cityView.classList.add('active');
+    mariaView.classList.remove('active');
+    mainTitle.textContent = 'Welcome to the City';
+    mainSub.textContent = "Choose a building. Step into someone else's digital workday. Three decisions — then the city reflects them back to you.";
+  }
+
+  function showMaria() {
+    cityView.classList.remove('active');
+    mariaView.classList.add('active');
+    mainTitle.textContent = "Maria's Classroom";
+    mainSub.textContent = "Live her story. Make her decisions. See how the city reflects on your choices.";
+  }
+
+  document.querySelectorAll('.building').forEach(b => {
+    b.addEventListener('click', () => {
+      if (b.classList.contains('locked')) return;
+      if (b.dataset.character === 'maria') showMaria();
+    });
+  });
+
+  const decisions = {1: null, 2: null, 3: null};
+  const btn = document.getElementById('generateBtn');
+  const output = document.getElementById('output');
+  const outputText = document.getElementById('outputText');
+  const returnCity = document.getElementById('returnCity');
+
+  document.querySelectorAll('.decision').forEach(block => {
+    const dnum = block.dataset.decision;
+    block.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        block.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        decisions[dnum] = opt.dataset.value;
+        checkReady();
+      });
+    });
+  });
+
+  function checkReady() {
+    const allSelected = decisions[1] && decisions[2] && decisions[3];
+    btn.disabled = !allSelected;
+    btn.textContent = allSelected ? "See Your Reflection" : 'Select all three decisions to continue';
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    btn.textContent = 'Analysing...';
+    output.classList.add('show');
+    outputText.innerHTML = '<span class="loading">Analysing your choices<span class="dots"><span></span><span></span><span></span></span></span>';
+
+    // Simulate processing time, then show personalised reflection
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    let score = 0;
+    const braveKeywords = ['Overrode', 'honestly', 'Defended'];
+    for (let i = 1; i <= 3; i++) {
+      if (decisions[i] && braveKeywords.some(k => decisions[i].includes(k))) score++;
+    }
+    const reflections = [
+      "You chose caution over confrontation — a valid response when facing unfamiliar systems. But notice what it cost: a student's future hung in the balance. In digital workplaces, silence can feel safe while being anything but. What would it take for you to push back next time?",
+      "Your choices showed real awareness — you navigated between the system and the person, trying to protect both. That balance is rare and valuable. The question is: when the two cannot coexist, which one do you choose?",
+      "You trusted your own judgment over the algorithm — and you paid a price for it each time. That kind of courage is exactly what digital workplaces need more of. Ask yourself: what made it possible for you to stand firm, and can you do it again?"
+    ];
+    outputText.textContent = reflections[Math.min(score, 2)];
+
+    btn.disabled = false;
+    btn.textContent = 'Try Again';
+    returnCity.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
